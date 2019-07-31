@@ -42,7 +42,8 @@ of the game, the bitmap size to be expected, and a list of the buttons
 that the game uses (eg galaxian only uses left, right and button 1)
 
 3. While in game:
-  * update function is called with current score, whether the game is over
+  * update function is called with current score, current health/lives, current
+  credits, whether the game is over
   and the current frame buffer.  The update function is meant to return the number of
   frames to skip till the next update (0 to receive the next
   update available). This is used just to speed up processing in the
@@ -79,4 +80,12 @@ objects are only valid during the call to the memory consumer.
 Finding the current score
 =========================
 
-TOWRITE
+The easiest way to find the current score (or credits, lives, etc) is to use the MAME
+debugger. 
+1. Start MAME with the -debug flag to run the debugger.
+2. Once you are in the game with a zero score, do `cheatinit`
+3. Score some points and enter `cheatnext increase` in the debugger. This will
+search for all memory locations which increased since the last search or the init.
+4. Do this a few more times. The list of possible locations will get smaller.
+5. `cheatlist` will list the memory locations which matched all the searches.
+6. You can use something like `print b@800f` to print the byte value at address 0x800f.
