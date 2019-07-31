@@ -10,6 +10,8 @@
 using namespace std;
 
 const string score_description_filename("score_description.txt");
+const string health_description_filename("health_description.txt");
+const string credits_description_filename("credits_description.txt");
 const string gameover_description_filename("gameover_description.txt");
 
 /*
@@ -183,6 +185,93 @@ le_score_memory_description get_score_details(const std::string& game_name, cons
 	return score_encoding;
 }
 
+/* Get where to find the current health details for the given game */
+le_score_memory_description get_health_details(const std::string& game_name, const std::string& description_files_directory) {
+	le_score_memory_description health_encoding;
+
+	string filename = find_description_filename(health_description_filename, description_files_directory);
+
+	if (filename.empty()) {
+		cerr << "Could not find '" << health_description_filename << "'" << endl;
+		return health_encoding;
+	}
+
+
+	/* we are looking in a file that looks like this
+	   wakichuki:
+	   parramata:
+
+	   @:maincpu:program:4433:4:hexreadable
+
+	 */
+
+	string encoding_description = find_description_for_game(filename.c_str(), game_name);
+	if ((encoding_description.length() > 0) && (is_mem_range(encoding_description))) {
+
+		size_t start_index = 2;
+
+		health_encoding.cpu = next_description_string(encoding_description, start_index);
+		health_encoding.address_space_name = next_description_string(encoding_description, start_index);
+		health_encoding.address = string_to_number(encoding_description, start_index);
+		health_encoding.number_of_bytes = string_to_number(encoding_description, start_index);
+		
+		string encoding_name = next_description_string(encoding_description, start_index);
+		if (encoding_name == "hexreadable") {
+			health_encoding.encoding = LE_ENCODING_HEXREADABLE;
+		} else {
+			cerr << "Don't recognise encoding '" << encoding_name << "'" << endl;
+			health_encoding.encoding = LE_ENCODING_INVALID;
+		}
+	} else {
+		cerr << "Didn't find a health entry for " << game_name << endl;
+	}
+
+	return health_encoding;
+}
+
+/* Get where to find the current credits details for the given game */
+le_score_memory_description get_credits_details(const std::string& game_name, const std::string& description_files_directory) {
+	le_score_memory_description credits_encoding;
+
+	string filename = find_description_filename(credits_description_filename, description_files_directory);
+
+	if (filename.empty()) {
+		cerr << "Could not find '" << credits_description_filename << "'" << endl;
+		return credits_encoding;
+	}
+
+
+	/* we are looking in a file that looks like this
+	   wakichuki:
+	   parramata:
+
+	   @:maincpu:program:4433:4:hexreadable
+
+	 */
+
+	string encoding_description = find_description_for_game(filename.c_str(), game_name);
+	if ((encoding_description.length() > 0) && (is_mem_range(encoding_description))) {
+
+		size_t start_index = 2;
+
+		credits_encoding.cpu = next_description_string(encoding_description, start_index);
+		credits_encoding.address_space_name = next_description_string(encoding_description, start_index);
+		credits_encoding.address = string_to_number(encoding_description, start_index);
+		credits_encoding.number_of_bytes = string_to_number(encoding_description, start_index);
+		
+		string encoding_name = next_description_string(encoding_description, start_index);
+		if (encoding_name == "hexreadable") {
+			credits_encoding.encoding = LE_ENCODING_HEXREADABLE;
+		} else {
+			cerr << "Don't recognise encoding '" << encoding_name << "'" << endl;
+			credits_encoding.encoding = LE_ENCODING_INVALID;
+		}
+	} else {
+		cerr << "Didn't find a credits entry for " << game_name << endl;
+	}
+
+	return credits_encoding;
+}
 /* Get where to find whether the game is over for the given game */
 le_gameover get_gameover_details(const std::string& game_name, const std::string& description_files_directory) {
 	le_gameover gameover;

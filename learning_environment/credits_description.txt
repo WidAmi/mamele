@@ -1,4 +1,4 @@
-# Where the first player's score sits and how to read that score
+# Where the game credits sit and how to read that score
 # Follows something vaguely similar to what hiscore.dat does for the memory range.  
 # It does not try to make an all-powerful encoding system, but instead will limit to major
 # schemes which will be given names.
@@ -8,27 +8,15 @@
 # for which game the description corresponds to
 # This can be multiple games, one per line
 
-# The score descriptions start with an @ symbol
+# The credits descriptions start with an @ symbol
 # @:<cpu>:<address_space>:<address_start>:<length>:<format>
 # address_space is ignored at the moment
 
 galaxian:
 
-@:maincpu:program:16546:3:hexreadable
+@:maincpu:program:16386:1:hexreadable
 
 invaders:
-@:maincpu:program:8440:2:hexreadable
-puckmanb:
-@:maincpu:program:20096:4 hexreadable
+@:maincpu:program:8427:1:hexreadable
 
-circus:
-ripcord:
-@:maincpu:program:45:2:hexreadable
-
-crash:
-sidetrac:
-@:maincpu:program:10:3:hexreadable
-
-targ:
-@:maincpu:program:189:2:hexreadable
 

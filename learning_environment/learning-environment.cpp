@@ -53,6 +53,8 @@ static int video_buffer_byte_length = 0;
 static int le_video_mode = LE_VIDEO_MODE_BGRA;
 
 static le_score_memory_description score_memory_description;
+static le_score_memory_description health_memory_description;
+static le_score_memory_description credits_memory_description;
 static le_gameover game_over;
 
 static int g_player = 1;
@@ -127,6 +129,83 @@ static int get_current_score(running_machine &machine) {
 	}
 
 	return score;
+}
+
+/* Read the current health */
+static int get_current_health(running_machine &machine) {
+	int health = 0;
+	static u8 *health_buffer = nullptr;
+
+	if (health_memory_description.encoding == LE_ENCODING_INVALID) return 0;
+
+	if (health_buffer == nullptr) {
+		health_buffer = (u8 *) malloc (health_memory_description.number_of_bytes);
+	}
+	copy_from_memory (machine, health_memory_description.cpu, 
+					health_memory_description.address, 
+					health_memory_description.number_of_bytes, health_buffer);
+
+	/*
+	cerr << health_memory_description.number_of_bytes << " bytes:\t ";
+	for (int i = 0; i < health_memory_description.number_of_bytes; i++) {
+
+		cerr << (int) health_buffer[i];
+	}
+	cerr << endl;
+	*/
+	
+	if (health_memory_description.encoding == LE_ENCODING_HEXREADABLE) {
+		/* encoding that maps each hex to a decimal place
+		* eg 0x34 = 34 
+		* or 0x4832 = 3248
+		*/
+		for (int i = health_memory_description.number_of_bytes-1 ; i >= 0 ; i--) {
+			health = health * 10 + ((health_buffer[i] & (unsigned char) 0xF0) >> 4);
+			health = health * 10 + (health_buffer[i] & (unsigned char) 0xF);
+		}
+	} else {
+		cerr << "Encoding type " << health_memory_description.encoding << " not implemented" << endl;
+	}
+
+	return health;
+}
+/* Read the current credits */
+static int get_current_credits(running_machine &machine) {
+	int credits = 0;
+	static u8 *credits_buffer = nullptr;
+
+	if (credits_memory_description.encoding == LE_ENCODING_INVALID) return 0;
+
+	if (credits_buffer == nullptr) {
+		credits_buffer = (u8 *) malloc (credits_memory_description.number_of_bytes);
+	}
+	copy_from_memory (machine, credits_memory_description.cpu, 
+					credits_memory_description.address, 
+					credits_memory_description.number_of_bytes, credits_buffer);
+
+	/*
+	cerr << credits_memory_description.number_of_bytes << " bytes:\t ";
+	for (int i = 0; i < credits_memory_description.number_of_bytes; i++) {
+
+		cerr << (int) credits_buffer[i];
+	}
+	cerr << endl;
+	*/
+	
+	if (credits_memory_description.encoding == LE_ENCODING_HEXREADABLE) {
+		/* encoding that maps each hex to a decimal place
+		* eg 0x34 = 34 
+		* or 0x4832 = 3248
+		*/
+		for (int i = credits_memory_description.number_of_bytes-1 ; i >= 0 ; i--) {
+			credits = credits * 10 + ((credits_buffer[i] & (unsigned char) 0xF0) >> 4);
+			credits = credits * 10 + (credits_buffer[i] & (unsigned char) 0xF);
+		}
+	} else {
+		cerr << "Encoding type " << credits_memory_description.encoding << " not implemented" << endl;
+	}
+
+	return credits;
 }
 
 /* Check if game is over */
@@ -325,6 +404,8 @@ int le_init(const running_machine &machine)
 	std::string game_name = machine.system().name;
 	std::string location_files_directory = machine.options().learning_environment_data_path();
 	score_memory_description = get_score_details(game_name, location_files_directory);
+	health_memory_description = get_health_details(game_name, location_files_directory);
+	credits_memory_description = get_credits_details(game_name, location_files_directory);
 	game_over = get_gameover_details(game_name, location_files_directory);
 
 
@@ -393,6 +474,8 @@ void le_close_display (const running_machine &machine)
 void le_update_display(running_machine &machine, const bitmap_rgb32 &bitmap)
 {
 	int current_score;
+	int current_health;
+	int current_credits;
 	int game_over;
 	le_game_info game_info;
 	s32 width, height;
@@ -475,9 +558,11 @@ void le_update_display(running_machine &machine, const bitmap_rgb32 &bitmap)
 	}
 
 	current_score = get_current_score(machine);
+	current_health = get_current_health(machine);
+	current_credits = get_current_credits(machine);
 	game_over = (is_game_over(machine) ? 1 : 0);
 
-	if (le_update_state) frame_skip = (*le_update_state)(current_score, game_over, &frame_buffer);
+	if (le_update_state) frame_skip = (*le_update_state)(current_score, current_health, current_credits, game_over, &frame_buffer);
 
 	if (le_consume_memory) {
 		extract_main_memory(machine);

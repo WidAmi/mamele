@@ -12,7 +12,11 @@
 # address_space is ignored at the moment
 
 galaxian:
-@:maincpu:program:16389:1:0
+#@:maincpu:program:16389:1:0
+@:maincpu:program:16390:0:0
+
+invaders:
+@:maincpu:program:8423:0:0
 
 crash:
 circus:

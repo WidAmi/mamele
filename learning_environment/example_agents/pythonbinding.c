@@ -98,7 +98,7 @@ static void finish_game(void) {
 }
 
 //void clear_display(void);
-static int update_state(int current_score, int game_over, const le_frame_buffer *frame_buffer) {
+static int update_state(int current_score, int current_health, int current_credits, int game_over, const le_frame_buffer *frame_buffer) {
 	int frame_skip, frame_byte_length;
 	PyObject *p_args, *p_value;
 	PyObject *p_buffer;
@@ -118,7 +118,7 @@ static int update_state(int current_score, int game_over, const le_frame_buffer 
 		}		
 
 		p_buffer = PyMemoryView_FromMemory((char *) (frame_buffer->buffer), frame_byte_length, PyBUF_READ);
-		p_args = Py_BuildValue("(iOO)", current_score, (game_over ? Py_True : Py_False), p_buffer);
+		p_args = Py_BuildValue("(iiiOO)", current_score, current_health, current_credits, (game_over ? Py_True : Py_False), p_buffer);
 
 		if (p_args == NULL) {
 			fprintf(stderr, "Error creating arguments to update_state\n");
