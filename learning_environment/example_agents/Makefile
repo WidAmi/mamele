@@ -7,11 +7,11 @@ MAME_LE_DIRECTORY=..
 CFLAGS += -Wall -fPIC -I$(MAME_LE_DIRECTORY)
 
 
-PYTHON2CFLAGS := -I$(shell python2 -c 'import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
-PYTHON2LIBS := -l$(shell python2 -c 'import sysconfig; print (sysconfig.get_config_var("LDLIBRARY")[3:-3])') -lm
+PYTHON2CFLAGS := -I$(shell python2.7 -c 'import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
+PYTHON2LIBS := $(shell python-config --libs) -lm
 
 PYTHON3CFLAGS := -I$(shell python3 -c 'import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
-PYTHON3LIBS := -l$(shell python3 -c 'import sysconfig; print (sysconfig.get_config_var("LDLIBRARY")[3:-3])') -lm
+PYTHON3LIBS := $(shell python3-config --ldflags) -lm
 
 OPTFLAGS = -O2
 
